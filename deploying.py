@@ -109,12 +109,7 @@ if selected_sheet:
                         
                 
 
-        st.dataframe(
-            df,
-            height=min(600, 35 * len(df) + 100),
-            use_container_width=True,
-            hide_index=True
-        )
+        
 
     except Exception as e:
         st.error(f"Error loading data: {str(e)}")
