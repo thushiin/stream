@@ -5,7 +5,7 @@ from gspread.utils import rowcol_to_a1
 import altair as alt
 
 # Set up the app
-st.set_page_config(page_title="Public Sheets Viewer", layout="wide")
+st.set_page_config(page_title="EV Dashboard", layout="wide")
 
 st.markdown("""
     <style>
@@ -64,56 +64,48 @@ if selected_sheet:
             
             
             # Optional filters (Multi-select version)
+            st.sidebar.header("🔍 Filters")
+            if "Region" in df.columns:
+                regions = sorted(df["Region"].dropna().unique())
+                selected_region = st.sidebar.selectbox("Filter by Region", ["All"] + regions)
+                if selected_region != "All":
+                    df = df[df["Region"] == selected_region]
+        
+            if "Brand" in df.columns:
+                brands = sorted(df["Brand"].dropna().unique())
+                selected_brand = st.sidebar.multiselect("Filter by Brand", brands)
+                if selected_brand:
+                    df = df[df["Brand"].isin(selected_brand)]
+
+                        
+        
+            
             col1, col2 = st.columns(2)
-            with col1:
-                if "Region" in df.columns:
-                    all_regions = sorted(df["Region"].dropna().unique().tolist())
-                    selected_region = st.selectbox("Filter by Region", options=["All"] + all_regions)
-                    if selected_region != "All":
-                        df = df[df["Region"] == selected_region]
-
-                        
-            with col2:
-                if "Brand" in df.columns:
-                    all_brands = sorted(df["Brand"].dropna().unique().tolist())
-                    selected_brands = st.multiselect("Filter by Brand", options=all_brands, default= None)
-                    if selected_brands:
-                        df = df[df["Brand"].isin(selected_brands)]
-                        
-                        
-        st.subheader(f"{selected_sheet}")
-            
-        total_entries = df["Region"].count() if "Region" in df.columns else 0
-        st.metric("Total Region Entries", total_entries)
-            
-            # Sum of Revenue
-        revenue_sum = df["Revenue"].sum() if "Revenue" in df.columns else 0
-        st.metric("Total Revenue", f"{revenue_sum:,.2f}")
-        
-                        
-        if "Region" in df.columns and "Revenue" in df.columns:
-            region_revenue = df.groupby("Region")["Revenue"].sum().reset_index()
-
-    # Altair bar chart
-            st.subheader("Total Revenue by Region")
-            chart = alt.Chart(region_revenue).mark_bar().encode(
-                x="Region:N",  # Categorical axis
-                y="Revenue:Q",  # Quantitative axis
-                tooltip=["Region", "Revenue"]  # Tooltip on hover
-            ).properties(
-                width=600,
-                height=400,
-                
-            )
-            st.altair_chart(chart, use_container_width=True)
-                        
-                
-
-        
-
+            total_entries = df["Region"].count() if "Region" in df.columns else 0
+            total_revenue = df["Revenue"].sum() if "Revenue" in df.columns else 0
+    
+            col1.metric("Region Entries", total_entries)
+            col2.metric("Total Revenue", f"₹{total_revenue:,.2f}")
+    
+            # Revenue by Region Chart
+            if "Region" in df.columns and "Revenue" in df.columns:
+                region_revenue = df.groupby("Region")["Revenue"].sum().reset_index()
+                chart = alt.Chart(region_revenue).mark_bar().encode(
+                    x=alt.X("Region:N", sort="-y"),
+                    y="Revenue:Q",
+                    color="Region:N",
+                    tooltip=["Region", "Revenue"]
+                ).properties(height=400)
+    
+                st.subheader("💸 Revenue by Region")
+                st.altair_chart(chart, use_container_width=True)
+    
+  
+    
     except Exception as e:
         st.error(f"Error loading data: {str(e)}")
-        st.info("Make sure the Google Sheet is set to 'Anyone with the link can view'")
+        st.info("Make sure the sheet is published and viewable publicly.")
+
 
 # Footer
 st.markdown("---")
