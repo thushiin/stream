@@ -23,7 +23,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("📊 Public Google Sheets Viewer")
+st.title("📊 EV Sales Dashboard")
 
 # Your public sheets configuration
 PUBLIC_SHEETS = {
