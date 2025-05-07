@@ -93,7 +93,7 @@ if selected_sheet:
                 chart = alt.Chart(region_revenue).mark_bar().encode(
                     x=alt.X("Region:N", sort="-y"),
                     y="Revenue:Q",
-                    color="Region:N",
+                    color=alt.Color("Region:N", legend=None),
                     tooltip=["Region", "Revenue"]
                 ).properties(height=400,width=600)
     
