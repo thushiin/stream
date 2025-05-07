@@ -95,7 +95,7 @@ if selected_sheet:
                     y="Revenue:Q",
                     color="Region:N",
                     tooltip=["Region", "Revenue"]
-                ).properties(height=400)
+                ).properties(height=400,width=600)
     
                 st.subheader("💸 Revenue by Region")
                 st.altair_chart(chart, use_container_width=True)
